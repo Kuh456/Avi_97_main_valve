@@ -11,15 +11,14 @@
 #define CAN_ID_SEND_MAIN_ANGLE_TO_CTRL_PANEL 0x102
 #define CAN_ID_RECV_MAIN_VALVE_ANGLE 0x105
 
-#define RX_MAIN_VALVE 22
-#define TX_MAIN_VALVE 21
-#define LED 32 // s3にはない
-#define CAN_LED 4
-#define EMG 14
-#define CAN_TX 15
-#define CAN_RX 13
+#define RX_MAIN_VALVE 14
+#define TX_MAIN_VALVE 26
+#define LED 17 // s3にはない
+#define CAN_LED 18
+#define CAN_TX 25
+#define CAN_RX 32
 // 論理icは5V駆動
-constexpr byte EN_PIN = 18; // 基板21
+constexpr byte EN_PIN = 27; // 基板21
 constexpr long BAUDRATE = 115200;
 constexpr int TIMEOUT = 1000;                                // 通信できてないか確認用にわざと遅めに設定 (ms)
 IcsHardSerialClass krs(&Serial2, EN_PIN, BAUDRATE, TIMEOUT); // インスタンス＋ENピン(17番ピン)およびUARTの指定
@@ -68,7 +67,7 @@ void setup()
   Serial.println("I am a CAN sender");
   pinMode(LED, OUTPUT);
   pinMode(CAN_LED, OUTPUT);
-  pinMode(EMG, INPUT);
+  // pinMode(EMG, INPUT);
   // サーボモータの通信初期設定
   Serial2.begin(115200, SERIAL_8N1, RX_MAIN_VALVE, TX_MAIN_VALVE);
   krs.begin(); // サーボモータの通信初期設定
@@ -109,7 +108,7 @@ void getandsendPos()
 {
   currentPosition = krs.getPos(0);
   currentAngle = (currentPosition - 7500) / 4000 * 135;
-  uint8_t rdata = static_cast<uint8_t>(currentAngle) + 64; // 118 -> 182, -26 -> 38
+  uint8_t rdata = static_cast<uint8_t>(currentAngle) + 130; // 118 -> 182, -26 -> 38
   CAN.sendData(CAN_ID_SEND_MAIN_ANGLE_TO_CTRL_PANEL, &rdata, 1);
 }
 
@@ -182,29 +181,29 @@ void loop()
       count = 0;
       getandsendPos();
     }
-    if (digitalRead(EMG) == HIGH)
-    {
-      count_EMG++;
-      if (count_EMG > 3000) // ダンプ試験はここを変える
-      {
-        currentState = EMG_ACTIVE;
-      }
-    }
-    else
-    {
-      count_EMG = 0;
-    }
+    // if (digitalRead(EMG) == HIGH)
+    // {
+    //   count_EMG++;
+    //   if (count_EMG > 3000) // ダンプ試験はここを変える
+    //   {
+    //     currentState = EMG_ACTIVE;
+    //   }
+    // }
+    // else
+    // {
+    //   count_EMG = 0;
+    // }
     digitalWrite(LED, digitalRead(LED) ^ 1);
     break;
-  case EMG_ACTIVE:
-    Serial.println("EMG detected, stopping servo.");
-    if (digitalRead(EMG) == LOW)
-    {
-      krs.setPos(0, closePosition);
-      count_EMG = 0;
-      currentState = NORMAL;
-    }
-    break;
+    // case EMG_ACTIVE:
+    //   Serial.println("EMG detected, stopping servo.");
+    //   if (digitalRead(EMG) == LOW)
+    //   {
+    //     krs.setPos(0, closePosition);
+    //     count_EMG = 0;
+    //     currentState = NORMAL;
+    //   }
+    //   break;
   }
   getandsendPos();
   ++count;

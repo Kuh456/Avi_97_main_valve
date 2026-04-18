@@ -459,7 +459,6 @@ int IcsBaseClass::getCur(byte id)
   flg = synchronize(txCmd, sizeof txCmd, rxCmd, sizeof rxCmd);
   if (flg == false)
   {
-    Serial.println("flg false");
     return ICS_FALSE;
   }
 

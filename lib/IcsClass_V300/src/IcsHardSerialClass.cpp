@@ -148,7 +148,6 @@ bool IcsHardSerialClass::synchronize(byte *txBuf, byte txLen, byte *rxBuf, byte 
   enLow(); // 受信切替
 
   rxSize = icsHardSerial->readBytes(rxBuf, rxLen);
-  Serial.println(rxSize);
   if (rxSize != rxLen) // 受信数確認
   {
     return false;
